@@ -222,7 +222,7 @@ export function useLiveStream(client: StreamClient = defaultClient): UseLiveStre
       unsubscribeEvents();
       unsubscribeStatus();
       unsubscribeError();
-      client.disconnect();
+      client.disconnect(true);
     };
   }, [client, flushBuffer, clearReconnectTimer, attemptReconnect]);
 
@@ -230,7 +230,6 @@ export function useLiveStream(client: StreamClient = defaultClient): UseLiveStre
     userPausedRef.current = true;
     clearReconnectTimer();
     client.pause();
-    setStatus('paused');
   }, [client, clearReconnectTimer]);
 
   const resume = useCallback(() => {
@@ -242,7 +241,7 @@ export function useLiveStream(client: StreamClient = defaultClient): UseLiveStre
     userPausedRef.current = false;
     retryCountRef.current = 0;
     clearReconnectTimer();
-    client.disconnect();
+    client.disconnect(true);
     client.connect();
   }, [client, clearReconnectTimer]);
 
@@ -250,7 +249,6 @@ export function useLiveStream(client: StreamClient = defaultClient): UseLiveStre
     userPausedRef.current = true;
     clearReconnectTimer();
     client.disconnect();
-    setStatus('error');
   }, [client, clearReconnectTimer]);
 
   const connect = useCallback(() => {

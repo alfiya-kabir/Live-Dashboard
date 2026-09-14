@@ -14,6 +14,7 @@ export class StreamClient {
   private errorListeners = new Set<ErrorListener>();
   private eventSequence = 0;
   private isConnected = false;
+  private connectionAttempt = 0;
 
   constructor(initialRateEps: number = 25) {
     this.rateEps = initialRateEps;
@@ -59,12 +60,13 @@ export class StreamClient {
   public connect(): void {
     if (this.isConnected) return;
 
+    const attempt = ++this.connectionAttempt;
     this.setStatus('connecting');
 
     // Simulate initial network handshake (150-300ms)
     window.setTimeout(() => {
       // If disconnected during handshake, abort
-      if (this.status !== 'connecting') return;
+      if (attempt !== this.connectionAttempt || this.status !== 'connecting') return;
 
       this.isConnected = true;
       this.setStatus('live');
@@ -72,10 +74,13 @@ export class StreamClient {
     }, 200);
   }
 
-  public disconnect(): void {
+  public disconnect(silent: boolean = false): void {
+    this.connectionAttempt++;
     this.isConnected = false;
     this.stopEmissionTimer();
-    this.setStatus('connecting');
+    if (!silent) {
+      this.setStatus('error');
+    }
   }
 
   public pause(): void {

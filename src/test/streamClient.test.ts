@@ -29,6 +29,15 @@ describe('StreamClient', () => {
     expect(client.getStatus()).toBe('live');
   });
 
+  it('does not complete a handshake after disconnecting', () => {
+    client.connect();
+    client.disconnect(true);
+
+    vi.advanceTimersByTime(250);
+
+    expect(client.getStatus()).toBe('connecting');
+  });
+
   it('pauses and resumes emission properly', () => {
     client.connect();
     vi.advanceTimersByTime(250);
